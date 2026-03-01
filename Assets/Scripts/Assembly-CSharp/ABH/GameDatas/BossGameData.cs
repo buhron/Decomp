@@ -301,7 +301,6 @@ namespace ABH.GameDatas
 			{
 				attack += attack * (m_powerLevelBalancing.AttackModifier / 100f);
 			}
-			attack += attack * (m_difficultyPercentage / 100f);
 			return attack;
 		}
 

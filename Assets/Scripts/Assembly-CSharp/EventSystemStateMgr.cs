@@ -34,8 +34,6 @@ public class EventSystemStateMgr : MonoBehaviourContainerBase
 
 	public EventItemGameData lastRemovedEventItem;
 
-	private bool m_eventFixed;
-
 	public bool IsInitialized { get; private set; }
 
 	public bool assetProviderLoading { get; set; }
@@ -61,13 +59,8 @@ public class EventSystemStateMgr : MonoBehaviourContainerBase
 		}
 		IInventoryItemGameData unlockItem = null;
 		m_LoadedEventAssetProviders = new Dictionary<string, GenericAssetProvider>();
-		DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData.StoryItemGained -= OnStoryItemAdded;
-		if (!DIContainerLogic.InventoryService.TryGetItemGameData(DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData, "unlock_events", out unlockItem))
-		{
-			DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData.StoryItemGained += OnStoryItemAdded;
-			yield break;
-		}
-		if (unlockItem.ItemData.IsNew)
+		DIContainerLogic.InventoryService.TryGetItemGameData(DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData, "unlock_events", out unlockItem);
+		if (unlockItem != null && unlockItem.ItemData.IsNew)
 		{
 			unlockItem.ItemData.IsNew = false;
 			DIContainerInfrastructure.TutorialMgr.StartTutorial("tutorial_battle_rule");
@@ -199,12 +192,6 @@ public class EventSystemStateMgr : MonoBehaviourContainerBase
 			return;
 		}
 		var currentEventManagerGameData2 = currentPlayer.CurrentEventManagerGameData;
-		if ((uint)currentEventManagerGameData2.CurrentEventManagerState < 1u && !m_eventFixed)
-		{
-			DIContainerLogic.EventSystemService.ClearEvent(currentPlayer, string.Empty);
-			OnCurrentEventUnavailable();
-			return;
-		}
 		if (!IsEventStateValid(currentEventManagerGameData2))
 		{
 			var dictionary2 = new Dictionary<string, string>();
@@ -299,18 +286,17 @@ public class EventSystemStateMgr : MonoBehaviourContainerBase
 			return;
 		}
 		var currentPlayer = DIContainerInfrastructure.GetCurrentPlayer();
+		if (DIContainerLogic.EventSystemService.IsCurrentEventAvailable(currentPlayer))
+		{
+			return;
+		}
 		foreach (var item in balancingDataList)
 		{
-			if (DIContainerLogic.EventSystemService.IsCurrentEventAvailable(currentPlayer) && (uint)currentPlayer.CurrentEventManagerGameData.CurrentEventManagerState > 1u)
-			{
-				break;
-			}
 			if (DIContainerLogic.EventSystemService.IsEventTeasing(item))
 			{
 				DebugLog.Log("OnCurrentEventUnavailable: event teasing = " + item.NameId);
 				DIContainerLogic.EventSystemService.TeaseNewEvent(item, currentPlayer);
 				CheckAndLoadEventAssets(currentPlayer.CurrentEventManagerGameData);
-				m_eventFixed = true;
 			}
 			else
 			{
@@ -625,11 +611,9 @@ public class EventSystemStateMgr : MonoBehaviourContainerBase
 	{
 		if (customMgr == null)
 		{
-			if (!DIContainerLogic.EventSystemService.IsCurrentEventAvailable(DIContainerInfrastructure.GetCurrentPlayer()))
-			{
-				return null;
-			}
 			customMgr = DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData;
+			if (!customMgr.IsValid)
+				return null;
 		}
 		if (customMgr.IsAssetValid)
 		{

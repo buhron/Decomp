@@ -143,7 +143,10 @@ public class BaseLocationStateManager : MonoBehaviour
 		WorldMenuUI.DeactivateCampButton();
 		m_FeatureUnlocksRunning = true;
 		var player = DIContainerInfrastructure.GetCurrentPlayer();
-		DIContainerInfrastructure.EventSystemStateManager.UpdateEventRewardStatus();
+		if (DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, "unlock_events") > 0)
+		{
+			DIContainerInfrastructure.EventSystemStateManager.UpdateEventRewardStatus();
+		}
 		DIContainerLogic.WorldMapService.EvaluateStarCollection(player);
 		if (player.Data.PendingFeatureUnlocks != null)
 		{

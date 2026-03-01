@@ -1233,12 +1233,14 @@ public class WorldMapStateMgr : BaseLocationStateManager
 
 	private void CheckLeagueAchievements()
 	{
-		if (DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData == null)
+		var player = DIContainerInfrastructure.GetCurrentPlayer();
+		// vanilla bug: league achievements don't work because this if statement is incorrect
+		if (DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, "unlock_events") > 0 || player.CurrentEventManagerGameData == null)
 		{
 			return;
 		}
-		var flag = DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData.GetCurrentRank == 1 && DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData.PublicOpponentDatas.Count > 2;
-		var achievementTracking = DIContainerInfrastructure.GetCurrentPlayer().Data.AchievementTracking;
+		var flag = player.CurrentEventManagerGameData.GetCurrentRank == 1 && player.CurrentEventManagerGameData.PublicOpponentDatas.Count > 2;
+		var achievementTracking = player.Data.AchievementTracking;
 		if (!achievementTracking.ReachedTopSpotEvent && flag)
 		{
 			var achievementIdForStoryItemIfExists = DIContainerInfrastructure.GetAchievementService().GetAchievementIdForStoryItemIfExists("topSpotEvent");

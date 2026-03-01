@@ -44,13 +44,21 @@ namespace ABH.GameDatas.Battle.Skills
 			yield return new WaitForSeconds(source.CombatantView.PlaySupportAnimation());
 			var waveBalancing = DIContainerBalancing.Service.GetBalancingData<BattleParticipantTableBalancingData>(m_TableKey);
 			var pigList = new List<PigGameData>();
-			var summonedList2 = new List<ICombatant>();
 			foreach (var entry in waveBalancing.BattleParticipants)
 			{
 				pigList.Add(new PigGameData(entry.NameId).SetDifficulties(battle.GetPlayerLevelForHotSpot(), battle.Balancing));
 			}
-			summonedList2 = DIContainerLogic.GetBattleService().GenerateSummonsWeighted(battle.m_CombatantsByInitiative.Where(c => c.CombatantFaction == m_Source.CombatantFaction).ToList(), waveBalancing, battle, (int)m_SummonedAmount, DIContainerBalancing.GameConstantsBalancingDataProvider.MaxPigsInBattle);
-			foreach (var summon in summonedList2)
+
+			var maxPigsInBattle = DIContainerBalancing.GameConstantsBalancingDataProvider.MaxPigsInBattle;
+			
+			var piggies = battle.m_CombatantsByInitiative
+				.Where(c => c.CombatantFaction == m_Source.CombatantFaction)
+				.ToList();
+			
+			piggies.AddRange(battle.m_CombatantsPerFaction[Faction.Pigs].Where(p => p.IsKnockedOut));
+			
+			var summonedList = DIContainerLogic.GetBattleService().GenerateSummonsWeighted(piggies, waveBalancing, battle, (int)m_SummonedAmount, maxPigsInBattle);
+			foreach (var summon in summonedList)
 			{
 				if (!battle.m_CombatantsPerFaction.ContainsKey(summon.CombatantFaction))
 				{
@@ -61,7 +69,7 @@ namespace ABH.GameDatas.Battle.Skills
 				summon.HasUsageDelay = true;
 				summon.summoningType = SummoningType.Summoned;
 			}
-			if (summonedList2.Count == 0)
+			if (summonedList.Count == 0)
 			{
 				source.CombatantView.m_AssetController.PlayMournAnim();
 				yield return new WaitForSeconds(source.CombatantView.m_AssetController.GetMournAnimationLength());
@@ -76,7 +84,7 @@ namespace ABH.GameDatas.Battle.Skills
 			{
 				yield return m_Source.CombatantView.m_BattleMgr.StartCoroutine(m_Source.CombatantView.m_BattleMgr.EnterPigs());
 			}
-			foreach (PigCombatant pig in summonedList2)
+			foreach (PigCombatant pig in summonedList)
 			{
 				if (pig.PassiveSkill != null)
 				{

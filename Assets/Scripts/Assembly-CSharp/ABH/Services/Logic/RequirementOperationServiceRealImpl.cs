@@ -22,8 +22,8 @@ namespace ABH.Services.Logic
 			CheckFunctionsByRequirement.Add(typeof(PlayerGameData), dictionary);
 			dictionary.Add(RequirementType.Level, delegate(object o, Requirement r)
 			{
-				var playerGameData26 = o as PlayerGameData;
-				return r.NameId == "max" ? (float)playerGameData26.Data.Level < r.Value : (float)playerGameData26.Data.Level >= r.Value;
+				var player = o as PlayerGameData;
+				return r.NameId == "max" ? (float)player.Data.Level < r.Value : (float)player.Data.Level >= r.Value;
 			});
 			dictionary.Add(RequirementType.HaveMasteryFactor, (o, r) => EvaluateMasteryFactorRequirement(o, r));
 			dictionary.Add(RequirementType.NotHaveMasteryFactor, (o, r) => !EvaluateMasteryFactorRequirement(o, r));
@@ -63,16 +63,16 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.UsedFriends, delegate(object o, Requirement r)
 			{
-				var playerGameData25 = o as PlayerGameData;
+				var player = o as PlayerGameData;
 				var value = new List<string>();
-				return playerGameData25.Data.SocialEnvironment.FriendShipGateUnlocks.TryGetValue(r.NameId, out value) && (float)value.Count >= r.Value;
+				return player.Data.SocialEnvironment.FriendShipGateUnlocks.TryGetValue(r.NameId, out value) && (float)value.Count >= r.Value;
 			});
 			dictionary.Add(RequirementType.NotUseBirdInBattle, delegate(object o, Requirement r)
 			{
-				var playerGameData24 = o as PlayerGameData;
-				for (var j = 0; j < playerGameData24.Data.SelectedBirdIndices.Count; j++)
+				var player = o as PlayerGameData;
+				for (var j = 0; j < player.Data.SelectedBirdIndices.Count; j++)
 				{
-					var nameId2 = playerGameData24.Birds[playerGameData24.Data.SelectedBirdIndices[j]].BalancingData.NameId;
+					var nameId2 = player.Birds[player.Data.SelectedBirdIndices[j]].BalancingData.NameId;
 					if (nameId2 == r.NameId)
 					{
 						return false;
@@ -82,10 +82,10 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.UseBirdInBattle, delegate(object o, Requirement r)
 			{
-				var playerGameData23 = o as PlayerGameData;
-				for (var i = 0; i < playerGameData23.Data.SelectedBirdIndices.Count; i++)
+				var player = o as PlayerGameData;
+				for (var i = 0; i < player.Data.SelectedBirdIndices.Count; i++)
 				{
-					var nameId = playerGameData23.Birds[playerGameData23.Data.SelectedBirdIndices[i]].BalancingData.NameId;
+					var nameId = player.Birds[player.Data.SelectedBirdIndices[i]].BalancingData.NameId;
 					if (nameId == r.NameId)
 					{
 						return true;
@@ -95,13 +95,15 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.LostPvpBattle, delegate(object o, Requirement r)
 			{
-				var playerGameData22 = o as PlayerGameData;
-				return playerGameData22.Data.LostAnyPvpBattle;
+				var player = o as PlayerGameData;
+				return player.Data.LostAnyPvpBattle;
 			});
 			dictionary.Add(RequirementType.HaveEventScore, delegate(object o, Requirement r)
 			{
-				var playerGameData21 = o as PlayerGameData;
-				return playerGameData21.CurrentEventManagerGameData != null && (float)playerGameData21.CurrentEventManagerGameData.Data.CurrentScore >= r.Value;
+				var player = o as PlayerGameData;
+				return DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, "unlock_events") > 0 && 
+				       player.CurrentEventManagerGameData != null && 
+				       (float)player.CurrentEventManagerGameData.Data.CurrentScore >= r.Value;
 			});
 			dictionary.Add(RequirementType.TotalMoneySpent, delegate(object o, Requirement r)
 			{
@@ -110,8 +112,8 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.HaveCurrentHotpsotState, delegate(object o, Requirement r)
 			{
-				var playerGameData18 = o as PlayerGameData;
-				return playerGameData18.WorldGameData.CurrentHotspotGameData != null && playerGameData18.WorldGameData.CurrentHotspotGameData.Data.UnlockState.ToString().ToLower() == r.NameId.ToLower() ? true : false;
+				var player = o as PlayerGameData;
+				return player.WorldGameData.CurrentHotspotGameData != null && player.WorldGameData.CurrentHotspotGameData.Data.UnlockState.ToString().ToLower() == r.NameId.ToLower() ? true : false;
 			});
 			dictionary.Add(RequirementType.LostUnresolvedHotspot, delegate(object o, Requirement r)
 			{
@@ -124,39 +126,39 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.HaveCurrentChronicleCaveState, delegate(object o, Requirement r)
 			{
-				var playerGameData17 = o as PlayerGameData;
-				return playerGameData17.ChronicleCaveGameData.CurrentHotspotGameData != null && playerGameData17.ChronicleCaveGameData.CurrentHotspotGameData.Data.UnlockState.ToString().ToLower() == r.NameId.ToLower() ? true : false;
+				var player = o as PlayerGameData;
+				return player.ChronicleCaveGameData.CurrentHotspotGameData != null && player.ChronicleCaveGameData.CurrentHotspotGameData.Data.UnlockState.ToString().ToLower() == r.NameId.ToLower() ? true : false;
 			});
 			dictionary.Add(RequirementType.TutorialCompleted, delegate(object o, Requirement r)
 			{
-				var playerGameData16 = o as PlayerGameData;
-				return playerGameData16.Data.TutorialTracks != null && playerGameData16.Data.TutorialTracks.ContainsKey(r.NameId) && (float)playerGameData16.Data.TutorialTracks[r.NameId] == r.Value;
+				var player = o as PlayerGameData;
+				return player.Data.TutorialTracks != null && player.Data.TutorialTracks.ContainsKey(r.NameId) && (float)player.Data.TutorialTracks[r.NameId] == r.Value;
 			});
 			dictionary.Add(RequirementType.HaveEventCampaignHotspotState, delegate(object o, Requirement r)
 			{
-				var playerGameData15 = o as PlayerGameData;
-				return DIContainerLogic.EventSystemService.IsCurrentEventAvailable(playerGameData15) && playerGameData15.CurrentEventManagerGameData.CurrentMiniCampaign != null && playerGameData15.CurrentEventManagerGameData.CurrentMiniCampaign.CurrentHotspotGameData != null && playerGameData15.CurrentEventManagerGameData.CurrentMiniCampaign.CurrentHotspotGameData.Data.UnlockState.ToString().ToLower() == r.NameId.ToLower() ? true : false;
+				var player = o as PlayerGameData;
+				return DIContainerLogic.EventSystemService.IsCurrentEventAvailable(player) && player.CurrentEventManagerGameData.CurrentMiniCampaign != null && player.CurrentEventManagerGameData.CurrentMiniCampaign.CurrentHotspotGameData != null && player.CurrentEventManagerGameData.CurrentMiniCampaign.CurrentHotspotGameData.Data.UnlockState.ToString().ToLower() == r.NameId.ToLower() ? true : false;
 			});
 			dictionary.Add(RequirementType.HaveUnlockedHotpsot, delegate(object o, Requirement r)
 			{
-				var playerGameData14 = o as PlayerGameData;
-				return playerGameData14.WorldGameData.HotspotGameDatas.ContainsKey(r.NameId) && playerGameData14.WorldGameData.HotspotGameDatas[r.NameId].Data.UnlockState >= HotspotUnlockState.ResolvedNew ? true : false;
+				var player = o as PlayerGameData;
+				return player.WorldGameData.HotspotGameDatas.ContainsKey(r.NameId) && player.WorldGameData.HotspotGameDatas[r.NameId].Data.UnlockState >= HotspotUnlockState.ResolvedNew ? true : false;
 			});
 			dictionary.Add(RequirementType.NotHaveUnlockedHotpsot, delegate(object o, Requirement r)
 			{
-				var playerGameData13 = o as PlayerGameData;
-				return playerGameData13.WorldGameData.HotspotGameDatas.ContainsKey(r.NameId) && playerGameData13.WorldGameData.HotspotGameDatas[r.NameId].Data.UnlockState < HotspotUnlockState.ResolvedNew ? true : false;
+				var player = o as PlayerGameData;
+				return player.WorldGameData.HotspotGameDatas.ContainsKey(r.NameId) && player.WorldGameData.HotspotGameDatas[r.NameId].Data.UnlockState < HotspotUnlockState.ResolvedNew ? true : false;
 			});
 			dictionary.Add(RequirementType.HaveBird, delegate(object o, Requirement r)
 			{
-				var playerGameData12 = o as PlayerGameData;
-				var bird = playerGameData12.GetBird(r.NameId);
-				return r.Value == 0f ? playerGameData12.GetBird(r.NameId) == null : playerGameData12.GetBird(r.NameId) != null;
+				var player = o as PlayerGameData;
+				var bird = player.GetBird(r.NameId);
+				return r.Value == 0f ? player.GetBird(r.NameId) == null : player.GetBird(r.NameId) != null;
 			});
 			dictionary.Add(RequirementType.HaveBirdCount, delegate(object o, Requirement r)
 			{
-				var playerGameData11 = o as PlayerGameData;
-				var count = playerGameData11.Birds.Count;
+				var player = o as PlayerGameData;
+				var count = player.Birds.Count;
 				if (r.NameId.Contains("g"))
 				{
 					return r.Value > (float)count;
@@ -165,18 +167,18 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.HaveItem, delegate(object o, Requirement r)
 			{
-				var playerGameData10 = o as PlayerGameData;
-				return (float)DIContainerLogic.InventoryService.GetItemValue(playerGameData10.InventoryGameData, r.NameId) >= r.Value;
+				var player = o as PlayerGameData;
+				return (float)DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, r.NameId) >= r.Value;
 			});
 			dictionary.Add(RequirementType.NotHaveClass, delegate(object o, Requirement r)
 			{
-				var playerGameData9 = o as PlayerGameData;
-				return !DIContainerLogic.InventoryService.CheckForItem(playerGameData9.InventoryGameData, r.NameId);
+				var player = o as PlayerGameData;
+				return !DIContainerLogic.InventoryService.CheckForItem(player.InventoryGameData, r.NameId);
 			});
 			dictionary.Add(RequirementType.HaveClass, delegate(object o, Requirement r)
 			{
-				var playerGameData8 = o as PlayerGameData;
-				return DIContainerLogic.InventoryService.CheckForItem(playerGameData8.InventoryGameData, r.NameId);
+				var player = o as PlayerGameData;
+				return DIContainerLogic.InventoryService.CheckForItem(player.InventoryGameData, r.NameId);
 			});
 			dictionary.Add(RequirementType.DeclinedOffer, delegate(object o, Requirement r)
 			{
@@ -190,8 +192,8 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.NotHaveItem, delegate(object o, Requirement r)
 			{
-				var playerGameData7 = o as PlayerGameData;
-				return (float)DIContainerLogic.InventoryService.GetItemValue(playerGameData7.InventoryGameData, r.NameId) < r.Value;
+				var player = o as PlayerGameData;
+				return (float)DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, r.NameId) < r.Value;
 			});
 			dictionary.Add(RequirementType.AcceptedOffer, delegate(object o, Requirement r)
 			{
@@ -273,20 +275,20 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.HaveItemWithLevel, delegate(object o, Requirement r)
 			{
-				var playerGameData6 = o as PlayerGameData;
+				var player = o as PlayerGameData;
 				IInventoryItemGameData data2 = null;
-				return DIContainerLogic.InventoryService.TryGetItemGameData(playerGameData6.InventoryGameData, r.NameId, out data2) && (float)data2.ItemData.Level >= r.Value;
+				return DIContainerLogic.InventoryService.TryGetItemGameData(player.InventoryGameData, r.NameId, out data2) && (float)data2.ItemData.Level >= r.Value;
 			});
 			dictionary.Add(RequirementType.NotHaveItemWithLevel, delegate(object o, Requirement r)
 			{
-				var playerGameData5 = o as PlayerGameData;
+				var player = o as PlayerGameData;
 				IInventoryItemGameData data = null;
-				return !DIContainerLogic.InventoryService.TryGetItemGameData(playerGameData5.InventoryGameData, r.NameId, out data) || (float)data.ItemData.Level < r.Value;
+				return !DIContainerLogic.InventoryService.TryGetItemGameData(player.InventoryGameData, r.NameId, out data) || (float)data.ItemData.Level < r.Value;
 			});
 			dictionary.Add(RequirementType.PayItem, delegate(object o, Requirement r)
 			{
-				var playerGameData4 = o as PlayerGameData;
-				return (float)DIContainerLogic.InventoryService.GetItemValue(playerGameData4.InventoryGameData, r.NameId) >= r.Value;
+				var player = o as PlayerGameData;
+				return (float)DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, r.NameId) >= r.Value;
 			});
 			DateTime trustedTime2;
 			dictionary.Add(RequirementType.IsSpecificWeekday, (o, r) => DIContainerLogic.GetTimingService().TryGetTrustedTime(out trustedTime2) && trustedTime2.DayOfWeek == (DayOfWeek)(int)Enum.Parse(typeof(DayOfWeek), r.NameId, true));
@@ -294,18 +296,18 @@ namespace ABH.Services.Logic
 			dictionary.Add(RequirementType.IsNotSpecificWeekday, (o, r) => DIContainerLogic.GetTimingService().TryGetTrustedTime(out trustedTime) && trustedTime.DayOfWeek != (DayOfWeek)(int)Enum.Parse(typeof(DayOfWeek), r.NameId, true));
 			dictionary.Add(RequirementType.HaveLessThan, delegate(object o, Requirement r)
 			{
-				var playerGameData3 = o as PlayerGameData;
-				return (float)DIContainerLogic.InventoryService.GetItemValue(playerGameData3.InventoryGameData, r.NameId) <= r.Value;
+				var player = o as PlayerGameData;
+				return (float)DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, r.NameId) <= r.Value;
 			});
 			dictionary.Add(RequirementType.IsConverted, delegate(object o, Requirement r)
 			{
-				var playerGameData2 = o as PlayerGameData;
-				return r.Value == 1f ? playerGameData2.Data.IsUserConverted : !playerGameData2.Data.IsUserConverted;
+				var player = o as PlayerGameData;
+				return r.Value == 1f ? player.Data.IsUserConverted : !player.Data.IsUserConverted;
 			});
 			dictionary.Add(RequirementType.HaveAllUpgrades, delegate(object o, Requirement r)
 			{
-				var player2 = o as PlayerGameData;
-				return HaveAllUpgrades(r, player2);
+				var player = o as PlayerGameData;
+				return HaveAllUpgrades(r, player);
 			});
 			dictionary.Add(RequirementType.NotHaveAllUpgrades, delegate(object o, Requirement r)
 			{
@@ -314,15 +316,19 @@ namespace ABH.Services.Logic
 			});
 			dictionary.Add(RequirementType.HaveTotalItemsInCollection, delegate(object o, Requirement r)
 			{
-				var playerGameData = o as PlayerGameData;
-				if (playerGameData.Data.CollectiblesPerEvent != null && playerGameData.Data.CollectiblesPerEvent.ContainsKey(r.NameId))
+				var player = o as PlayerGameData;
+
+				if (DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, "unlock_events") <= 0)
+					return false;
+				
+				if (player.Data.CollectiblesPerEvent != null && player.Data.CollectiblesPerEvent.ContainsKey(r.NameId))
 				{
-					return (float)playerGameData.Data.CollectiblesPerEvent[r.NameId] >= r.Value;
+					return (float)player.Data.CollectiblesPerEvent[r.NameId] >= r.Value;
 				}
-				if (playerGameData.CurrentEventManagerGameData != null && playerGameData.CurrentEventManagerGameData.Balancing != null && playerGameData.CurrentEventManagerGameData.Balancing.NameId == r.NameId)
+				if (player.CurrentEventManagerGameData != null && player.CurrentEventManagerGameData.Balancing != null && player.CurrentEventManagerGameData.Balancing.NameId == r.NameId)
 				{
 					var num = 0;
-					foreach (var item in playerGameData.InventoryGameData.Items[InventoryItemType.CollectionComponent])
+					foreach (var item in player.InventoryGameData.Items[InventoryItemType.CollectionComponent])
 					{
 						if (item.Name != "collection_event_stars")
 						{
@@ -337,23 +343,23 @@ namespace ABH.Services.Logic
 			CheckFunctionsByRequirement.Add(typeof(InventoryGameData), dictionary2);
 			dictionary2.Add(RequirementType.HaveItem, delegate(object o, Requirement r)
 			{
-				var inventory5 = o as InventoryGameData;
-				return (float)DIContainerLogic.InventoryService.GetItemValue(inventory5, r.NameId) >= r.Value;
+				var inventory = o as InventoryGameData;
+				return (float)DIContainerLogic.InventoryService.GetItemValue(inventory, r.NameId) >= r.Value;
 			});
 			dictionary2.Add(RequirementType.NotHaveItem, delegate(object o, Requirement r)
 			{
-				var inventory4 = o as InventoryGameData;
-				return (float)DIContainerLogic.InventoryService.GetItemValue(inventory4, r.NameId) < r.Value;
+				var inventory = o as InventoryGameData;
+				return (float)DIContainerLogic.InventoryService.GetItemValue(inventory, r.NameId) < r.Value;
 			});
 			dictionary2.Add(RequirementType.NotHaveClass, delegate(object o, Requirement r)
 			{
-				var inventory3 = o as InventoryGameData;
-				return !DIContainerLogic.InventoryService.CheckForItem(inventory3, r.NameId);
+				var inventory = o as InventoryGameData;
+				return !DIContainerLogic.InventoryService.CheckForItem(inventory, r.NameId);
 			});
 			dictionary2.Add(RequirementType.HaveClass, delegate(object o, Requirement r)
 			{
-				var inventory2 = o as InventoryGameData;
-				return DIContainerLogic.InventoryService.CheckForItem(inventory2, r.NameId);
+				var inventory = o as InventoryGameData;
+				return DIContainerLogic.InventoryService.CheckForItem(inventory, r.NameId);
 			});
 			dictionary2.Add(RequirementType.PayItem, delegate(object o, Requirement r)
 			{

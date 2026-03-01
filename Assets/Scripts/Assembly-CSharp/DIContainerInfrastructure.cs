@@ -702,9 +702,9 @@ public class DIContainerInfrastructure
 
 	public static INotificationService NotificationService()
 	{
-		#if UNITY_IOS
+		#if UNITY_IOS && !UNITY_EDITOR
 		return m_NotificationService ?? (m_NotificationService = new NotificationServiceiOSImpl());
-		#elif UNITY_ANDROID
+		#elif UNITY_ANDROID && !UNITY_EDITOR
 		return m_NotificationService ?? (m_NotificationService = new NotificationServiceAndroidImpl());
 		#else
 		return m_NotificationService ?? (m_NotificationService = new NotificationServiceNullImpl());

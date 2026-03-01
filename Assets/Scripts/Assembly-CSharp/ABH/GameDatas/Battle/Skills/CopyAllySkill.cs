@@ -63,9 +63,9 @@ namespace ABH.GameDatas.Battle.Skills
 				ForcePercent = false,
 				Unique = false
 			});
-			var summonedList2 = new List<ICombatant>();
-			summonedList2 = DIContainerLogic.GetBattleService().GenerateSummonsWeighted(battle.m_CombatantsByInitiative.Where(c => c.CombatantFaction == m_Source.CombatantFaction).ToList(), waveBalancing, battle, 1, DIContainerBalancing.GameConstantsBalancingDataProvider.MaxPigsInBattle);
-			foreach (var summon in summonedList2)
+			var summonedList = new List<ICombatant>();
+			summonedList = DIContainerLogic.GetBattleService().GenerateSummonsWeighted(battle.m_CombatantsByInitiative.Where(c => c.CombatantFaction == m_Source.CombatantFaction).ToList(), waveBalancing, battle, 1, DIContainerBalancing.GameConstantsBalancingDataProvider.MaxPigsInBattle);
+			foreach (var summon in summonedList)
 			{
 				if (!battle.m_CombatantsPerFaction.ContainsKey(summon.CombatantFaction))
 				{
@@ -76,7 +76,7 @@ namespace ABH.GameDatas.Battle.Skills
 				summon.HasUsageDelay = true;
 				summon.summoningType = SummoningType.Summoned;
 			}
-			if (summonedList2.Count == 0)
+			if (summonedList.Count == 0)
 			{
 				source.CombatantView.m_AssetController.PlayMournAnim();
 				yield return new WaitForSeconds(source.CombatantView.m_AssetController.GetMournAnimationLength());
@@ -84,7 +84,7 @@ namespace ABH.GameDatas.Battle.Skills
 			}
 			yield return m_Source.CombatantView.m_BattleMgr.StartCoroutine(m_Source.CombatantView.m_BattleMgr.PlaceCharacter(m_Source.CombatantView.m_BattleMgr.m_PigCenterPosition, Faction.Pigs));
 			yield return m_Source.CombatantView.m_BattleMgr.StartCoroutine(m_Source.CombatantView.m_BattleMgr.SpawnPigs());
-			foreach (PigCombatant pig in summonedList2)
+			foreach (PigCombatant pig in summonedList)
 			{
 				if (pig.PassiveSkill != null)
 				{

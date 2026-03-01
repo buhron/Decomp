@@ -61,39 +61,40 @@ public class WorldMapMenuHotlinkButton : MonoBehaviour
 	public void InitEvent(bool locked)
 	{
 		m_locked = locked;
-		if (DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData.IsValid)
+		if (!DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData.IsValid)
 		{
-			m_LockedObject.SetActive(m_locked);
-			m_EventModel = DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData;
-			m_targetTime = DIContainerLogic.GetTimingService().GetDateTimeFromTimestamp(m_EventModel.Balancing.EventEndTimeStamp);
-			if (m_EventModel.CurrentEventManagerState >= EventManagerState.Finished)
-			{
-				m_FinishedHighlight.SetActive(true);
-				m_SpecialOfferTimer.text = DIContainerInfrastructure.GetLocaService().Tr("event_banner_finished", "Finished!");
-			}
-			else
-			{
-				StartCoroutine(ShowTimer());
-			}
-			StartCoroutine(HandleEventIcon());
-			if (m_EventModel.IsBossEvent)
-			{
-				if (DIContainerLogic.EventSystemService.IsBossOnCooldown())
-				{
-					ShowBossCooldownTimer();
-				}
-				else
-				{
-					StartCoroutine(ShowHealthbar());
-				}
-			}
-			m_ButtonTrigger.Clicked -= OnEventButtonClicked;
-			m_ButtonTrigger.Clicked += OnEventButtonClicked;
+			DebugLog.Error(GetType(), "InitEvent: Event unavailable or invalid!");
+			return;
+		}
+		
+		m_LockedObject.SetActive(m_locked);
+		m_EventModel = DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData;
+		m_targetTime = DIContainerLogic.GetTimingService().GetDateTimeFromTimestamp(m_EventModel.Balancing.EventEndTimeStamp);
+		if (m_EventModel.CurrentEventManagerState >= EventManagerState.Finished)
+		{
+			m_FinishedHighlight.SetActive(true);
+			m_SpecialOfferTimer.text = DIContainerInfrastructure.GetLocaService().Tr("event_banner_finished", "Finished!");
 		}
 		else
 		{
-			DebugLog.Error(GetType(), "InitEvent: Event unavailable or invalid!");
+			StartCoroutine(ShowTimer());
 		}
+
+		StartCoroutine(HandleEventIcon());
+		if (m_EventModel.IsBossEvent)
+		{
+			if (DIContainerLogic.EventSystemService.IsBossOnCooldown())
+			{
+				ShowBossCooldownTimer();
+			}
+			else
+			{
+				StartCoroutine(ShowHealthbar());
+			}
+		}
+
+		m_ButtonTrigger.Clicked -= OnEventButtonClicked;
+		m_ButtonTrigger.Clicked += OnEventButtonClicked;
 	}
 
 	public void InitOffer(SalesManagerBalancingData saleBalancing)

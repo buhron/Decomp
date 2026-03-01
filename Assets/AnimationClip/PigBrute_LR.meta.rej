@@ -1,0 +1,11 @@
+--- Assets/AnimationClip/PigBrute_LR.meta
++++ Assets/AnimationClip/PigBrute_LR.meta
+@@ -0,0 +1,8 @@
++fileFormatVersion: 2
++guid: 409a5246e1a5feb4483700575bce4a57
++folderAsset: yes
++DefaultImporter:
++  externalObjects: {}
++  userData: 
++  assetBundleName: 
++  assetBundleVariant: 

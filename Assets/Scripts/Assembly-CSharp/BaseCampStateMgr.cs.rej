@@ -1,0 +1,24 @@
+--- Assets/Scripts/Assembly-CSharp/BaseCampStateMgr.cs
++++ Assets/Scripts/Assembly-CSharp/BaseCampStateMgr.cs
+@@ -439,10 +439,9 @@ public class BaseCampStateMgr : MonoBehaviour
+ 
+ 	public void RefreshBirdMarkers()
+ 	{
+-		if (!ClientInfo.IsFriend || DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData == null || DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData.Items == null)
+-		{
++		if (ClientInfo.IsFriend)
+ 			return;
+-		}
++		
+ 		foreach (var item in m_CharactersCamp)
+ 		{
+ 			var flag = false;
+@@ -625,7 +624,7 @@ public class BaseCampStateMgr : MonoBehaviour
+ 			var gachaVideoTimespan = DIContainerBalancing.GameConstantsBalancingDataProvider.GachaVideoTimespan;
+ 			var presentTime = DIContainerLogic.GetTimingService().GetCurrentTimestamp();
+ 			
+-			m_VideoGachaSign.SetActive(timestampOfLastGacha2 + 60 * gachaVideoTimespan <= presentTime);
++			m_VideoGachaSign.SetActive((timestampOfLastGacha2 + 60 * gachaVideoTimespan) <= presentTime);
+ 		}
+ 	}
+ 

@@ -340,13 +340,12 @@ public class WorldMapMenuUI : MonoBehaviour, IMapUI
 		}
 		yield return new WaitForEndOfFrame();
 		var player = DIContainerInfrastructure.GetCurrentPlayer();
-		var eventFound = false;
-		if (player.CurrentEventManagerGameData != null && player.CurrentEventManagerGameData.CurrentEventManagerState != EventManagerState.Teasing)
+		var newsUnlocked = DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, "news_introduction") > 0;
+		if (newsUnlocked && player.CurrentEventManagerGameData != null && player.CurrentEventManagerGameData.CurrentEventManagerState != EventManagerState.Teasing)
 		{
-			eventFound = true;
 			var eventButton = Object.Instantiate(m_EventButtonPrefab);
 			eventButton.transform.parent = m_SpecialButtonGrid.transform;
-			var hasNotUnlockedEvents = DIContainerLogic.InventoryService.GetItemValue(DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData, "unlock_events") < 1;
+			var hasNotUnlockedEvents = DIContainerLogic.InventoryService.GetItemValue(DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData, "unlock_events") <= 0;
 			eventButton.GetComponent<WorldMapMenuHotlinkButton>().InitEvent(hasNotUnlockedEvents);
 		}
 		var salesSorted = DIContainerLogic.GetSalesManagerService().GetAllActiveSales(true);
@@ -355,14 +354,9 @@ public class WorldMapMenuUI : MonoBehaviour, IMapUI
 			salesSorted = salesSorted.Where(sale => sale.ContentType != SaleContentType.RainbowRiot).ToList();
 			var saleWithHighestPrio = salesSorted.FirstOrDefault();
 			SalesManagerBalancingData saleWithSecondHighestPrio = null;
-			SalesManagerBalancingData saleWithThirdHighestPrio = null;
 			if (salesSorted.Count > 1)
 			{
 				saleWithSecondHighestPrio = salesSorted[1];
-			}
-			if (salesSorted.Count > 2)
-			{
-				saleWithThirdHighestPrio = salesSorted[2];
 			}
 			if (saleWithHighestPrio != null)
 			{
@@ -375,12 +369,6 @@ public class WorldMapMenuUI : MonoBehaviour, IMapUI
 				var offerButton2 = Object.Instantiate(m_SpecialOfferButtonprefab);
 				offerButton2.transform.parent = m_SpecialButtonGrid.transform;
 				offerButton2.GetComponent<WorldMapMenuHotlinkButton>().InitOffer(saleWithSecondHighestPrio);
-			}
-			if (!eventFound && saleWithThirdHighestPrio != null)
-			{
-				var offerButton = Object.Instantiate(m_SpecialOfferButtonprefab);
-				offerButton.transform.parent = m_SpecialButtonGrid.transform;
-				offerButton.GetComponent<WorldMapMenuHotlinkButton>().InitOffer(saleWithThirdHighestPrio);
 			}
 		}
 		m_SpecialButtonGrid.Reposition();

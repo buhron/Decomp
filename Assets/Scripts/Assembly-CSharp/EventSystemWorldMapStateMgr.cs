@@ -166,26 +166,12 @@ public class EventSystemWorldMapStateMgr : MonoBehaviour
 
 	private IEnumerator DespawnAllEventItems()
 	{
-		m_PossiblePositionNodes.Clear();
-		m_PossibleCollectibleNodes.Clear();
 		var allHotspotPositionNodes = DIContainerInfrastructure.LocationStateMgr.gameObject.GetComponentsInChildren<EventPositionNode>(true);
-		var bossSuffix = GetBossSuffix();
 		for (var i = 0; i < allHotspotPositionNodes.Length; i++)
 		{
-			if (allHotspotPositionNodes[i].SynchBalancing(bossSuffix) && DIContainerLogic.RequirementService.CheckGenericRequirements(DIContainerInfrastructure.GetCurrentPlayer(), allHotspotPositionNodes[i].GetModel().SpawnAbleRequirements))
+			if (allHotspotPositionNodes[i].HasItem())
 			{
-				if (allHotspotPositionNodes[i].m_IsCollectible)
-				{
-					m_PossibleCollectibleNodes.Add(allHotspotPositionNodes[i].GetModel().NameId, allHotspotPositionNodes[i]);
-				}
-				else
-				{
-					m_PossiblePositionNodes.Add(allHotspotPositionNodes[i].GetModel().NameId, allHotspotPositionNodes[i]);
-				}
-				if (allHotspotPositionNodes[i].HasItem())
-				{
-					allHotspotPositionNodes[i].DespawnItem();
-				}
+				allHotspotPositionNodes[i].DespawnItem();
 			}
 		}
 		yield break;

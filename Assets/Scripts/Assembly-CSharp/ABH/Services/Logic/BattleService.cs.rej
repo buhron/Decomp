@@ -1,0 +1,117 @@
+--- Assets/Scripts/Assembly-CSharp/ABH/Services/Logic/BattleService.cs
++++ Assets/Scripts/Assembly-CSharp/ABH/Services/Logic/BattleService.cs
+@@ -1709,7 +1709,7 @@ namespace ABH.Services.Logic
+ 			}
+ 			if (!ignoreStandardOnHealEffects)
+ 			{
+-				num = NormalizeDamage(ApplyEffectsOnTriggerType(num, EffectTriggerType.OnReceiveHealing, target, target));
++				num = NormalizeDamage(ApplyEffectsOnTriggerType(num, EffectTriggerType.OnReceiveHealing, target, source));
+ 			}
+ 			if (isSupportSkill && source != null)
+ 			{
+@@ -1894,13 +1894,15 @@ namespace ABH.Services.Logic
+ 				{
+ 					if (effectGameData.m_Source == attacker)
+ 					{
++						setting = null;
+ 						if (DIContainerLogic.GetVisualEffectsBalancing().TryGetVisualEffectSetting("Crit", out setting))
+ 						{
+ 							SpawnVisualEffects(VisualEffectSpawnTiming.Impact, setting, new List<ICombatant> { effectGameData.m_Target }, effectGameData.m_Source, false);
+ 						}
+ 
+ 						var bonusHealing = effect.Values[1];
+-						return bonusHealing / 100f * param + param;
++						effectGameData.EvaluateEffect();
++						return ((bonusHealing / 100f) * param) + param;
+ 					}
+ 				}
+ 
+@@ -5033,10 +5035,9 @@ namespace ABH.Services.Logic
+ 
+ 		public float ApplyEffectsOnTriggerType(float effectedParam, EffectTriggerType triggerType, ICombatant effectOwner, ICombatant target)
+ 		{
+-			var num = effectedParam;
+ 			if (effectOwner.CurrrentEffects == null)
+ 			{
+-				return num;
++				return effectedParam;
+ 			}
+ 			var list = effectOwner.CurrrentEffects.Values.OrderBy(e => e.m_Effects[0].EffectType).ToList();
+ 			for (var i = 0; i < list.Count; i++)
+@@ -5054,11 +5055,11 @@ namespace ABH.Services.Logic
+ 					Func<float, BattleEffectGameData, BattleEffect, ICombatant, float> value = null;
+ 					if (battleEffect.EffectTrigger == triggerType && BattleEffectsByTriggerAndByType.ContainsKey(triggerType) && BattleEffectsByTriggerAndByType[triggerType].TryGetValue(battleEffect.EffectType, out value))
+ 					{
+-						num = value(num, battleEffectGameData, battleEffect, target);
++						effectedParam = value(effectedParam, battleEffectGameData, battleEffect, target);
+ 					}
+ 				}
+ 			}
+-			return num;
++			return effectedParam;
+ 		}
+ 
+ 		public bool IsRageAvailiable(BattleGameData battle, Faction faction)
+--- Assets/Scripts/Assembly-CSharp/ABH/Services/Logic/BattleService.cs
++++ Assets/Scripts/Assembly-CSharp/ABH/Services/Logic/BattleService.cs
+@@ -4740,19 +4740,49 @@ namespace ABH.Services.Logic
+ 			// ModifyDamageVsDebuff
+ 			BattleEffectsByTriggerAndByType[EffectTriggerType.OnDealDamage].Add(BattleEffectType.ModifyDamageVsDebuff, delegate(float param, BattleEffectGameData effectGameData, BattleEffect effect, ICombatant attacker)
+ 			{
+-				var attackerCurrentEffects = attacker.CurrrentEffects;
+-				if (attackerCurrentEffects.Values.Any(e => e.m_EffectType == SkillEffectTypes.Curse))
+-				{
+-					var value = effect.Values[0];
+-					if (UnityEngine.Random.value <= value)
+-					{
+-						effectGameData.EvaluateEffect();
++				var damageBonusVsWet = effect.Values[0];
++				var damageBonusVsGoo = effect.Values[1];
++				var damageBonusVsStun = effect.Values[2];
++				var damageBonusVsPaint = effect.Values[3];
++				var damageBonusVsChocolate = effect.Values[4];
++				var damageBonusVsPumpkin = effect.Values[5];
++				var damageBonusVsSpotlight = effect.Values[6];
++				var damageBonusVsInk = effect.Values[7];
+ 
+-						var num = param + effect.Values[1] / -100f;
+-						return Math.Max(num, 0f);
+-					}
++				if (damageBonusVsStun > 0f && attacker.IsStunned)
++				{
++					param *= damageBonusVsStun / 100f;
+ 				}
+-				return param;
++				if (damageBonusVsWet > 0f && attacker.CurrrentEffects.ContainsKey("WaterBomb"))
++				{
++					param *= damageBonusVsWet / 100f;
++				}
++				if (damageBonusVsChocolate > 0f && attacker.CurrrentEffects.ContainsKey("ChocolateRain"))
++				{
++					param *= damageBonusVsChocolate / 100f;
++				}
++				if (damageBonusVsPumpkin > 0f && attacker.CurrrentEffects.ContainsKey("StickyPumpkin"))
++				{
++					param *= damageBonusVsPumpkin / 100f;
++				}
++				if (damageBonusVsGoo > 0f && attacker.CurrrentEffects.ContainsKey("GooBomb"))
++				{
++					param *= damageBonusVsGoo / 100f;
++				}
++				if (damageBonusVsPaint > 0f && attacker.CurrrentEffects.ContainsKey("ColorfulAttack"))
++				{
++					param *= damageBonusVsPaint / 100f;
++				}
++				if (damageBonusVsSpotlight > 0f && attacker.CurrrentEffects.ContainsKey("InTheSpotlight"))
++				{
++					param *= damageBonusVsSpotlight / 100f;
++				}
++				if (damageBonusVsInk > 0f && attacker.CurrrentEffects.ContainsKey("BreathOfTheSea"))
++				{
++					param *= damageBonusVsInk / 100f;
++				}
++				
++				return Math.Max(param, 0f);
+ 			});
+ 			
+ 			// Execute

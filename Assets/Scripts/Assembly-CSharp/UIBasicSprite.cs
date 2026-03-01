@@ -157,7 +157,7 @@ public abstract class UIBasicSprite : UIWidget
 		}
 		set
 		{
-			var val = Mathf.Clamp01(value);
+			var val = !float.IsNaN(value) ? Mathf.Clamp01(value) : 0f;
 
 			if (mFillAmount != val)
 			{

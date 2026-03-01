@@ -193,7 +193,12 @@ public class PvPObjectivesService
 				ABHAnalyticsHelper.AddPlayerStatusToTracking(dictionary);
 				DIContainerInfrastructure.GetAnalyticsSystem().LogEventWithParameters("PvpObjectiveSolved", dictionary);
 				dailyObjective.Data.Solved = true;
-				DIContainerLogic.InventoryService.AddItem(currentPlayer.InventoryGameData, 1, 1, "pvp_points_standard", dailyObjective.Reward, "objective_solved");
+
+				var info = new Dictionary<string, string>();
+				info.Add("TypeOfUse", "objective_solved");
+				info.Add("ObjectiveDifficulty", dailyObjective.GetDifficulty());
+				
+				DIContainerLogic.InventoryService.AddItem(currentPlayer.InventoryGameData, 1, 1, "pvp_points_standard", dailyObjective.Reward, info);
 			}
 			dailyObjective.Data.Progress = Mathf.Min(dailyObjective.BalancingData.Amount, dailyObjective.Data.Progress);
 		}

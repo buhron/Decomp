@@ -1,0 +1,19 @@
+--- Assets/Scripts/Assembly-CSharp/HotSpotWorldMapViewBattle.cs
++++ Assets/Scripts/Assembly-CSharp/HotSpotWorldMapViewBattle.cs
+@@ -418,7 +418,15 @@ public class HotSpotWorldMapViewBattle : HotSpotWorldMapViewBase
+ 			{
+ 				DebugLog.Log("Hotspot Chest Looted");
+ 			}
+-			DIContainerLogic.GetLootOperationService().RewardLoot(DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData, 2, loot, "hotspot_chest");
++			var rewardedLoot = DIContainerLogic.GetLootOperationService().RewardLoot(DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData, 2, loot, "hotspot_chest");
++			foreach (var lootItem in rewardedLoot)
++			{
++				if (lootItem.IsAncient)
++				{
++					lootItem.ItemData.Level = DIContainerInfrastructure.GetCurrentPlayer().Data.Level + 2;
++					lootItem.EnchantmentLevel = 5;
++				}
++			}
+ 			DIContainerInfrastructure.GetCoreStateMgr().m_GenericUI.UpdateAllBars();
+ 		}
+ 	}

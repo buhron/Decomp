@@ -1,0 +1,151 @@
+--- Assets/Scripts/Assembly-CSharp/OpponentInfoElement.cs
++++ Assets/Scripts/Assembly-CSharp/OpponentInfoElement.cs
+@@ -221,6 +221,7 @@ public class OpponentInfoElement : MonoBehaviour
+ 
+ 	public void SetDefault(int score, int rank, int starRating, bool pvp, bool isFriend = false, bool isSelf = false)
+ 	{
++		m_isPvp = pvp;
+ 		if (m_OpponentAvatar)
+ 		{
+ 			m_OpponentAvatar.gameObject.SetActive(false);
+@@ -306,7 +307,7 @@ public class OpponentInfoElement : MonoBehaviour
+ 	{
+ 		if (score > 0 && 
+ 		    DIContainerLogic.PvPSeasonService.IsCurrentPvPTurnAvailable(DIContainerInfrastructure.GetCurrentPlayer()) && 
+-		    DIContainerInfrastructure.GetCurrentPlayer().CurrentPvPSeasonGameData.Balancing.PvPBonusLootTablesPerRank.Count > rank - 1)
++		    DIContainerLogic.PvPSeasonService.CountCurrentLootTablesPerRank() > rank - 1)
+ 		{
+ 			var currentPvPSeasonGameData = DIContainerInfrastructure.GetCurrentPlayer().CurrentPvPSeasonGameData;
+ 			var currentLeague = currentPvPSeasonGameData.Data.CurrentLeague;
+@@ -315,10 +316,35 @@ public class OpponentInfoElement : MonoBehaviour
+ 			{ 
+ 				{ DIContainerInfrastructure.GetCurrentPlayer().CurrentPvPSeasonGameData.CurrentSeasonTurn.GetScalingRankRewardLootTable(rank), 1 }
+ 			}, DIContainerInfrastructure.GetCurrentPlayer().Data.Level));
+-			var inventoryItemGameData = itemsFromLoot.FirstOrDefault();
+-			if (rank != 1)
++			var rewardItem = itemsFromLoot.FirstOrDefault();
++			
++			if (rank == 1)
+ 			{
+-				if (inventoryItemGameData != null)
++				if (m_FirstRankBonus)
++				{
++					m_FirstRankBonus.SetActive(true);
++				}
++
++				m_RankBonus.gameObject.SetActive(false);
++				m_RankBonusWithLeagueChange.gameObject.SetActive(true);
++				if (m_PvpLeagueChangeDefaultLoot)
++				{
++					m_PvpLeagueChangeDefaultLoot.SetActive(false);
++				}
++
++				if (m_CrownWithRankBonus != null)
++				{
++					m_CrownWithRankBonus.spriteName = PvPSeasonManagerGameData.GetLeagueAssetName(currentLeague);
++				}
++
++				if (m_PromotionIndicatorWithRankBonus != null)
++				{
++					m_PromotionIndicatorWithRankBonus.spriteName = "Arrow_Up";
++				}
++			}
++			else
++			{
++				if (rewardItem != null)
+ 				{
+ 					if (m_PvpLeagueChangeDefaultLoot)
+ 					{
+@@ -337,7 +363,7 @@ public class OpponentInfoElement : MonoBehaviour
+ 						{
+ 							m_RankBonus.gameObject.SetActive(false);
+ 							m_RankBonusWithLeagueChange.gameObject.SetActive(true);
+-							m_RankBonusWithLeagueChange.SetModel(inventoryItemGameData.ItemAssetName, null, inventoryItemGameData.ItemValue, string.Empty);
++							m_RankBonusWithLeagueChange.SetModel(rewardItem.ItemAssetName, null, rewardItem.ItemValue, string.Empty);
+ 							if (m_CrownWithRankBonus != null)
+ 							{
+ 								m_CrownWithRankBonus.spriteName = PvPSeasonManagerGameData.GetLeagueAssetName(currentLeague);
+@@ -352,11 +378,12 @@ public class OpponentInfoElement : MonoBehaviour
+ 					else
+ 					{
+ 						m_RankBonus.gameObject.SetActive(true);
+-						m_RankBonus.SetModel(inventoryItemGameData.ItemAssetName, null, inventoryItemGameData.ItemValue, string.Empty);
++						m_RankBonus.SetModel(rewardItem.ItemAssetName, null, rewardItem.ItemValue, string.Empty);
+ 					}
+ 
+ 					return;
+ 				}
++
+ 				m_RankBonus.gameObject.SetActive(false);
+ 				if (hasProOrDemotion)
+ 				{
+@@ -374,27 +401,6 @@ public class OpponentInfoElement : MonoBehaviour
+ 					}
+ 				}
+ 			}
+-			else
+-			{
+-				if (m_FirstRankBonus)
+-				{
+-					m_FirstRankBonus.SetActive(true);
+-				}
+-				m_RankBonus.gameObject.SetActive(false);
+-				m_RankBonusWithLeagueChange.gameObject.SetActive(true);
+-				if (m_PvpLeagueChangeDefaultLoot)
+-				{
+-					m_PvpLeagueChangeDefaultLoot.SetActive(false);
+-				}
+-				if (m_CrownWithRankBonus != null)
+-				{
+-					m_CrownWithRankBonus.spriteName = PvPSeasonManagerGameData.GetLeagueAssetName(currentLeague);
+-				}
+-				if (m_PromotionIndicatorWithRankBonus != null)
+-				{
+-					m_PromotionIndicatorWithRankBonus.spriteName = "Arrow_Up";
+-				}
+-			}
+ 		}
+ 		else if (hasProOrDemotion && !m_isFriend)
+ 		{
+@@ -429,24 +435,30 @@ public class OpponentInfoElement : MonoBehaviour
+ 		{
+ 			var itemsFromLoot = DIContainerLogic.GetLootOperationService().GetItemsFromLoot(DIContainerLogic.GetLootOperationService().GenerateLoot(new Dictionary<string, int> { 
+ 			{
+-				DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData.GetScalingRankRewardLootTable(rank),
+-				1
++				DIContainerInfrastructure.GetCurrentPlayer().CurrentEventManagerGameData.GetScalingRankRewardLootTable(rank), 1
+ 			} }, DIContainerInfrastructure.GetCurrentPlayer().Data.Level));
+-			var inventoryItemGameData = itemsFromLoot.FirstOrDefault();
+-			if (inventoryItemGameData != null)
++			var rewardItem = itemsFromLoot.FirstOrDefault();
++
++			if (rank == 1 && m_FirstRankBonus)
+ 			{
++				m_FirstRankBonus.SetActive(true);
++			} 
++			else if (rewardItem != null)
++			{
++				if (m_FirstRankBonus)
++					m_FirstRankBonus.SetActive(false);
++				
+ 				m_RankBonus.gameObject.SetActive(true);
+-				m_RankBonus.SetModel(inventoryItemGameData.ItemAssetName, null, inventoryItemGameData.ItemValue, string.Empty);
++				m_RankBonus.SetModel(rewardItem.ItemAssetName, null, rewardItem.ItemValue, string.Empty);
++				return;
+ 			}
+-			else
++			else if (m_FirstRankBonus)
+ 			{
+-				m_RankBonus.gameObject.SetActive(false);
++				m_FirstRankBonus.SetActive(false);
+ 			}
+ 		}
+-		else
+-		{
+-			m_RankBonus.gameObject.SetActive(false);
+-		}
++		
++		m_RankBonus.gameObject.SetActive(false);
+ 	}
+ 
+ 	private void RefreshInfos()

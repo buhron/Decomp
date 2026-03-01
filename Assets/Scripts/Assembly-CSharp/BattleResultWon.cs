@@ -212,7 +212,6 @@ public class BattleResultWon : MonoBehaviour
 
 	private KeyValuePair<int, string> m_cachedSeasonReward;
 
-	[SerializeField]
 	public event Action OnWheelSpinned;
 	
 	private void Awake()
@@ -1206,6 +1205,7 @@ public class BattleResultWon : MonoBehaviour
 		{
 			DIContainerInfrastructure.GetCurrentPlayer().Data.TimeStampOfLastEventPointVideoBoost = DIContainerLogic.GetTimingService().GetCurrentTimestamp();
 		}
+		
 		foreach (var loot in m_gameEndData.m_wheelLoot.Values)
 		{
 			if (loot.Value <= 1)
@@ -1213,6 +1213,9 @@ public class BattleResultWon : MonoBehaviour
 
 			loot.Value += (int)(loot.Value * (bonusValue / 100f));
 		}
+
+		m_gameEndData.m_VideoAdMultiplier = bonusValue;
+		
 		m_VideoAdFeedbackAnimation.Play("UpdateMultiplier");
 		
 		yield return new WaitForSeconds(1f);

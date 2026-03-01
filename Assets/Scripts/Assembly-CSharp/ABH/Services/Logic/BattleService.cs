@@ -4170,7 +4170,7 @@ namespace ABH.Services.Logic
 				return 0f;
 			});
 			
-			// IncreaseDamageReceieved
+			// IncreaseDamageReceived
 			BattleEffectsByTriggerAndByType[EffectTriggerType.OnReceiveDamage].Add(BattleEffectType.IncreaseDamageReceived, delegate(float param, BattleEffectGameData effectGameData, BattleEffect effect, ICombatant attacker)
 			{
 				effectGameData.EvaluateEffect();

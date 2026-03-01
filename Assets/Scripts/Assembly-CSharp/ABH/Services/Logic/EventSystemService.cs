@@ -95,7 +95,7 @@ namespace ABH.Services.Logic
 			{
 				currentPlayer = DIContainerInfrastructure.GetCurrentPlayer();
 			}
-			return currentPlayer.CurrentEventManagerGameData != null && currentPlayer.CurrentEventManagerGameData.IsValid;
+			return DIContainerLogic.InventoryService.GetItemValue(currentPlayer.InventoryGameData, "unlock_events") >= 1 && currentPlayer.CurrentEventManagerGameData != null && currentPlayer.CurrentEventManagerGameData.IsValid;
 		}
 
 		public bool IsEventOverNow(EventManagerGameData currentEventManagerGameData)
@@ -357,7 +357,9 @@ namespace ABH.Services.Logic
 
 		public void TeaseEvent(EventManagerGameData currentEventManagerGameData)
 		{
-			if (currentEventManagerGameData != null && currentEventManagerGameData.CurrentEventManagerState != 0)
+			if (currentEventManagerGameData != null && 
+			    DIContainerLogic.InventoryService.GetItemValue(DIContainerInfrastructure.GetCurrentPlayer().InventoryGameData, "unlock_events") > 0 && 
+			    currentEventManagerGameData.CurrentEventManagerState != 0)
 			{
 				LogDebug(string.Concat("Tease Event: ", currentEventManagerGameData.Balancing.NameId, " with tease start Time: ", m_timingService.GetDateTimeFromTimestamp(currentEventManagerGameData.Balancing.EventTeaserStartTimeStamp), " and start Time: ", m_timingService.GetDateTimeFromTimestamp(currentEventManagerGameData.Balancing.EventStartTimeStamp), " at time: ", m_timingService.GetPresentTime()));
 				currentEventManagerGameData.CurrentEventManagerState = EventManagerState.Teasing;
@@ -660,7 +662,9 @@ namespace ABH.Services.Logic
 
 		public bool IsSubmitAllowed(PlayerGameData player)
 		{
-			return player.CurrentEventManagerGameData != null && player.CurrentEventManagerGameData.Data.CurrentState == EventManagerState.Running;
+			return DIContainerLogic.InventoryService.GetItemValue(player.InventoryGameData, "unlock_events") > 0 && 
+			       player.CurrentEventManagerGameData != null && 
+			       player.CurrentEventManagerGameData.Data.CurrentState == EventManagerState.Running;
 		}
 
 		public void UpdateMatchmakingScore(PlayerGameData player)

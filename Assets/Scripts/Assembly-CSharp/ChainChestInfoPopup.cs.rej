@@ -1,0 +1,27 @@
+--- Assets/Scripts/Assembly-CSharp/ChainChestInfoPopup.cs
++++ Assets/Scripts/Assembly-CSharp/ChainChestInfoPopup.cs
+@@ -105,18 +105,15 @@ public class ChainChestInfoPopup : MonoBehaviour
+ 			m_currentPage = m_pageCount;
+ 
+ 		var maxItems = Mathf.Min(m_allPossibleItems.Count, (m_currentPage + 1) * m_maxItemsPerPage);
+-
+-		var i = m_maxItemsPerPage * m_currentPage;
+-		while (true)
++		
++		for (var i = m_maxItemsPerPage * m_currentPage; i < maxItems; i++)
+ 		{
+-			if (i >= maxItems)
+-				break;
++			var item = m_allPossibleItems[i];
++			CreateItem(item, i);
+ 			
+-			CreateItem(m_allPossibleItems[i], i);
+-			m_itemGrid.Reposition();
+-			i++;
+-
+ 			yield return new WaitForEndOfFrame();
++			
++			m_itemGrid.Reposition();
+ 		}
+ 	}
+ 

@@ -1,0 +1,22 @@
+--- Assets/Scripts/Assembly-CSharp/ChronicleCaveMenuUI.cs
++++ Assets/Scripts/Assembly-CSharp/ChronicleCaveMenuUI.cs
+@@ -118,12 +118,19 @@ public class ChronicleCaveMenuUI : MonoBehaviour, IMapUI
+ 	private IEnumerator EnterCoroutine()
+ 	{
+ 		RegisterEventHandler();
++
++		#if UNITY_IOS && !UNITY_EDITOR
++		m_SkillRoot.GetComponent<LayoutControl>().m_LayoutSet.m_v3Position.x = Screen.safeArea.x / 2 - Screen.safeArea.x / 14;
++		#endif
++		
+ 		DIContainerInfrastructure.GetCoreStateMgr().m_WindowRoot.Leave();
+ 		m_WorldMapButtonAnimation.Play("Button_Medium_BL_Enter");
+ 		m_CampButtonAnimation.Play("Button_Medium_BR_Enter");
+ 		base.gameObject.GetComponent<UIPanel>().enabled = true;
+ 		m_SkillChanged = true;
++		
+ 		yield return new WaitForSeconds(m_WorldMapButtonAnimation["Button_Medium_BL_Enter"].length);
++		
+ 		DIContainerInfrastructure.GetCoreStateMgr().m_GenericUI.DeRegisterBar(2u);
+ 		DIContainerInfrastructure.GetCoreStateMgr().m_GenericUI.DeRegisterBar(4u);
+ 	}

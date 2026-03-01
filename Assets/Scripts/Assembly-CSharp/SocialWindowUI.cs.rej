@@ -1,0 +1,97 @@
+--- Assets/Scripts/Assembly-CSharp/SocialWindowUI.cs
++++ Assets/Scripts/Assembly-CSharp/SocialWindowUI.cs
+@@ -790,7 +790,7 @@ public class SocialWindowUI : MonoBehaviour
+ 	private void RovioIdAwake()
+ 	{
+ 		m_RovioIdBadgeRoot.SetActive(false);
+-		m_RovioIdRegisterButton.gameObject.SetActive(false);
++		m_RovioIdRegisterButtonObject.gameObject.SetActive(false);
+ 		m_RovioIdRegisterText.gameObject.SetActive(false);
+ 		DIContainerInfrastructure.GetFacebookWrapper().CheckConnectionAsynch(OnConnectionChecked);
+ 		DIContainerInfrastructure.GetAchievementService().GetGlobalAchievementProgress(updateAchievementProgress);
+@@ -1085,8 +1085,7 @@ public class SocialWindowUI : MonoBehaviour
+ 	private void HandleRovioIdNotLoggedInState()
+ 	{
+ 		m_RovioIdSignInButton.gameObject.SetActive(true);
+-		m_RovioIdRegisterText.gameObject.SetActive(true);
+-		m_RovioIdRegisterButtonObject.gameObject.SetActive(true);
++		m_RovioIdRegisterText.gameObject.SetActive(false);
+ 		m_RovioIdAccountName.text = DIContainerInfrastructure.GetLocaService().Tr("social_rovid_notloggedin", "Not Logged In!");
+ 		m_RovioIdSignInButtonText.text = DIContainerInfrastructure.GetLocaService().Tr("social_rovid_btn_signin", "Sign In");
+ 	}
+@@ -1096,7 +1095,6 @@ public class SocialWindowUI : MonoBehaviour
+ 		DebugLog.Log("[SocialWindowUI] HandleRovioIdLoggedInState()");
+ 		m_RovioIdSignInButton.gameObject.SetActive(true);
+ 		m_RovioIdRegisterText.gameObject.SetActive(false);
+-		m_RovioIdRegisterButtonObject.gameObject.SetActive(false);
+ 		var email = DIContainerInfrastructure.IdentityService.UserCredentials.Email;
+ 		m_RovioIdAccountName.text = email;
+ 		m_RovioIdSignInButtonText.text = DIContainerInfrastructure.GetLocaService().Tr("social_rovid_btn_signout", "Sign Out");
+@@ -1126,8 +1124,7 @@ public class SocialWindowUI : MonoBehaviour
+ 	private void HandleGuestRovioIdLoggedInState()
+ 	{
+ 		m_RovioIdSignInButton.gameObject.SetActive(true);
+-		m_RovioIdRegisterText.gameObject.SetActive(true);
+-		m_RovioIdRegisterButtonObject.gameObject.SetActive(true);
++		m_RovioIdRegisterText.gameObject.SetActive(false);
+ 		m_RovioIdSignInButtonText.text = DIContainerInfrastructure.GetLocaService().Tr("social_rovid_btn_signin", "Sign In");
+ 		m_RovioIdAccountName.text = DIContainerInfrastructure.GetLocaService().Tr("social_rovid_guestname", "Guest");
+ 	}
+--- Assets/Scripts/Assembly-CSharp/SocialWindowUI.cs
++++ Assets/Scripts/Assembly-CSharp/SocialWindowUI.cs
+@@ -1456,13 +1456,19 @@ public class SocialWindowUI : MonoBehaviour
+ 		switch (category)
+ 		{
+ 		case SocialWindowCategory.RovioId:
++			if (m_ClaimAllButtonObject)
++				m_ClaimAllButtonObject.SetActive(false);
+ 			m_FacebookFooterRoot.SetActive(false);
++			m_StarCollectionFooterRoot.SetActive(false);
+ 			m_FriendshipEssenceFooterRoot.SetActive(false);
+ 			m_ChallengeFooterRoot.SetActive(false);
+ 			m_RovioLoginFooterRoot.SetActive(true);
+-			m_StarCollectionFooterRoot.SetActive(false);
+ 			break;
+ 		case SocialWindowCategory.Friends:
++			if (m_ClaimAllButtonObject)
++				m_ClaimAllButtonObject.SetActive(false);
++			if (m_StarCollectionFooterRoot)
++				m_StarCollectionFooterRoot.SetActive(false);
+ 			if (!DIContainerInfrastructure.GetFacebookWrapper().IsUserAuthenticated())
+ 			{
+ 				m_FacebookFooterRoot.SetActive(true);
+@@ -1478,13 +1484,16 @@ public class SocialWindowUI : MonoBehaviour
+ 			m_StarCollectionFooterRoot.SetActive(false);
+ 			break;
+ 		case SocialWindowCategory.Mailbox:
++			if (m_ClaimAllButtonObject)
++				m_ClaimAllButtonObject.SetActive(true);
++			if (m_StarCollectionFooterRoot)
++				m_StarCollectionFooterRoot.SetActive(false);
+ 			if (!DIContainerInfrastructure.GetFacebookWrapper().IsUserAuthenticated())
+ 			{
+ 				m_FacebookFooterRoot.SetActive(true);
+ 				m_FriendshipEssenceFooterRoot.SetActive(false);
+ 				m_ChallengeFooterRoot.SetActive(false);
+ 				m_RovioLoginFooterRoot.SetActive(false);
+-				m_StarCollectionFooterRoot.SetActive(false);
+ 			}
+ 			else
+ 			{
+@@ -1492,7 +1501,6 @@ public class SocialWindowUI : MonoBehaviour
+ 				m_FriendshipEssenceFooterRoot.SetActive(true);
+ 				m_ChallengeFooterRoot.SetActive(false);
+ 				m_RovioLoginFooterRoot.SetActive(false);
+-				m_StarCollectionFooterRoot.SetActive(false);
+ 			}
+ 			break;
+ 		case SocialWindowCategory.StarCollection:
+@@ -1501,6 +1509,8 @@ public class SocialWindowUI : MonoBehaviour
+ 			m_RovioLoginFooterRoot.SetActive(false);
+ 			m_FacebookFooterRoot.SetActive(false);
+ 			m_StarCollectionFooterRoot.SetActive(true);
++			if (m_ClaimAllButtonObject)
++				m_ClaimAllButtonObject.SetActive(false);
+ 			break;
+ 		}
+ 		m_CurrentCategory = category;

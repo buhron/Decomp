@@ -1,0 +1,10 @@
+--- Assets/Scripts/Assembly-CSharp/BattleResultWon.cs
++++ Assets/Scripts/Assembly-CSharp/BattleResultWon.cs
+@@ -212,7 +212,6 @@ public class BattleResultWon : MonoBehaviour
+ 
+ 	private KeyValuePair<int, string> m_cachedSeasonReward;
+ 
+-	[SerializeField]
+ 	public event Action OnWheelSpinned;
+ 	
+ 	private void Awake()
